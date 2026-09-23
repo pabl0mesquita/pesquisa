@@ -1,16 +1,18 @@
 """
-Heatmap de |F| no plano (sigma, L) para dois sítios cross-Kerr idênticos,
-fótons contrapropagantes.
+Calcula o mapa de F no plano (sigma, L) para dois sítios cross-Kerr idênticos,
+fótons contrapropagantes, e salva os dados em data/heatmap para serem plotados
+por heatmap_l_vs_sigma_plotar.py.
 
-Usa as mesmas expressões e o mesmo método de integração de calcular.py:
-a integral tripla é reduzida a convoluções 1D (o núcleo fatoriza, com K
-dependendo só da energia total E = wa+wb), o que permite resolver sigma e
-gamma simultaneamente.
+Usa as mesmas expressões e o mesmo método de integração de calcular.py: a
+integral tripla é reduzida a convoluções 1D (o núcleo fatoriza, com K dependendo
+só da energia total E = wa+wb), o que permite resolver sigma e gamma
+simultaneamente.
 """
+import os
+
 import numpy as np
 from scipy.integrate import simpson
 from scipy.signal import fftconvolve
-import matplotlib.pyplot as plt
 
 # ----------------------------------------------------------------------
 # Parâmetros físicos fixos
@@ -19,19 +21,20 @@ gamma = 1.0           # gamma_1 = gamma_2 (fixo)
 chi = 1000.0          # chi_1 = chi_2 (fixo)
 Delta = 0.0           # Delta_1 = Delta_2 (convenção)
 omega0 = 0.0          # frequência central do pacote, relativa a Delta
+phi = np.pi           # fase usada no cálculo de F1(phi)
 
 omega_c = Delta + omega0  # frequência central efetiva (derivada, não editar)
 
 # ----------------------------------------------------------------------
 # Varredura no plano (sigma, L)
 # ----------------------------------------------------------------------
-sigma_min = 0.01       # menor largura do pacote (eixo x, escala log)
+sigma_min = 0.01      # menor largura do pacote (eixo x, escala log)
 sigma_max = 10.0      # maior largura do pacote
-n_sigma = 200         # número de colunas do heatmap
+n_sigma = 200         # número de colunas do mapa
 
 L_min = 0.0           # menor separação entre os sítios (eixo y, escala linear)
 L_max = 6.0           # maior separação
-n_L = 200             # número de linhas do heatmap
+n_L = 200             # número de linhas do mapa
 
 # ----------------------------------------------------------------------
 # Parâmetros numéricos da integração (mesma convenção de calcular.py)
@@ -42,15 +45,11 @@ n_min = 2001          # número mínimo de pontos na grade
 n_max = 600001        # teto de pontos (proteção de tempo/memória)
 
 # ----------------------------------------------------------------------
-# Parâmetros da figura
+# Parâmetros de saída
 # ----------------------------------------------------------------------
-outfile = 'heatmap_overlap_sigma_L.svg'   # arquivo de imagem de saída
-dpi = 300
-figsize = (8, 6)
-cmap = 'viridis'
-vmin, vmax = 0.0, 1.0                     # faixa da barra de cores
-show = True                               # abre a janela interativa além de salvar
-quiet = False                             # se True, não imprime o progresso
+outdir = os.path.join('data', 'heatmap')          # pasta onde os dados serão salvos
+outfile = 'heatmap_chi1000_gamma1_omega0.npz'     # nome do arquivo .npz de saída
+quiet = False         # se True, não imprime o progresso da varredura
 
 
 def Gamma(w):
@@ -92,7 +91,9 @@ def grade(sigma):
 
 def compute_F(sigma, L):
     """
-    F = 1 + G, com
+    F = 1 + G  (produto interno <target|espalhado>, com a deformação de fóton
+    único já removida por `correction`), com
+
     G = ∫∫∫ dwa dwb dna  xi(wa)xi(wb)xi(na)xi(nb) *
                           correction(wa) correction(wb) *
                           [termo 2 + termo 3](wa,wb,na,nb)
@@ -137,25 +138,27 @@ def main():
         if not quiet:
             print(f"L={L:6.3f}  concluído ({i+1}/{len(L_vals)})")
 
-    abs_F = np.abs(F_grid)
-    if np.any(abs_F > 1.0 + 1e-6) and not quiet:
+    F_abs = np.abs(F_grid)
+    if np.any(F_abs > 1.0 + 1e-6) and not quiet:
         print("AVISO: |F| > 1 em alguns pontos -- considere aumentar "
               "'pts_per_width' ou 'k_sigma'.")
 
-    plt.figure(figsize=figsize)
-    im = plt.pcolormesh(sigma_vals, L_vals, abs_F, cmap=cmap,
-                    vmin=vmin, vmax=vmax, shading='auto',
-                    edgecolors='face', linewidth=0, antialiased=False,  rasterized=True)
-    plt.xscale('log')
-    plt.colorbar(im, label=r'$|F|$')
-    plt.xlabel(r'$\sigma$')
-    plt.ylabel(r'$L$')
-    plt.title(rf'$\chi={chi:g},\ \gamma={gamma:g},\ \omega_0={omega0:g}$')
-    plt.tight_layout()
-    plt.savefig(outfile, dpi=dpi, bbox_inches='tight')
-    if show:
-        plt.show()
-    return sigma_vals, L_vals, F_grid
+    os.makedirs(outdir, exist_ok=True)
+    outpath = os.path.join(outdir, outfile)
+    np.savez(
+        outpath,
+        sigmas=sigma_vals,
+        Ls=L_vals,
+        F_abs=F_abs,
+        F_re=np.real(F_grid),
+        F_im=np.imag(F_grid),
+        F1_pi=(6 + 3 * np.real(np.exp(1j * phi) * F_grid) + F_abs ** 2) / 10.0,
+        F1_opt=(6 + 3 * F_abs + F_abs ** 2) / 10.0,
+        chi=chi, gamma=gamma, Delta=Delta, omega0=omega0, phi=phi,
+        k_sigma=k_sigma, pts_per_width=pts_per_width,
+    )
+    if not quiet:
+        print(f"Dados salvos em {outpath}")
 
 
 if __name__ == '__main__':
