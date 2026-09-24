@@ -91,7 +91,7 @@ def main(
     show=True,
     figsize=(7, 5),
     ylim=(0.3, 1.02),
-    xlim=(1e-2, 1e2),
+    xlim=(1e-2, 1e1),
     grid=False,
     title=None,
     xlabel=r'Largura do pacote de onda $\sigma$',
