@@ -28,7 +28,7 @@ gamma = 1.0           # gamma_1 = gamma_2 (fixo)
 chi = 1000.0          # chi_1 = chi_2 (fixo)
 Delta = 0.0           # Delta_1 = Delta_2 (convenção)
 omega0 = 0.0          # frequência central do pacote de entrada, relativa a Delta
-L = 0               # separação entre os sítios
+L = 1               # separação entre os sítios
 sigma = 1.0           # largura do pacote de entrada
 
 omega_c = Delta + omega0  # frequência central efetiva (derivada, não editar)
@@ -38,7 +38,7 @@ omega_c = Delta + omega0  # frequência central efetiva (derivada, não editar)
 # ----------------------------------------------------------------------
 omega_min = -10.0     # limite inferior dos dois eixos
 omega_max = 10.0      # limite superior dos dois eixos
-n_omega = 500         # pontos por eixo do heatmap
+n_omega = 2000         # pontos por eixo do heatmap
 
 # ----------------------------------------------------------------------
 # Parâmetros numéricos da convolução P(E) (mesma convenção de calcular.py)

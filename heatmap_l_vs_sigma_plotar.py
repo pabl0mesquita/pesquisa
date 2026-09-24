@@ -62,7 +62,7 @@ def main():
 
     im = plt.pcolormesh(sigmas, Ls, z, cmap=cmap,
                     vmin=vmin, vmax=vmax, shading='auto',
-                    edgecolors='face', linewidth=0, antialiased=False,
+                    edgecolors='face', linewidth=0, antialiased=True,
                     rasterized=True)   # opcional, mas recomendado dado o tamanho da malha (200x200)
     ax.set_xscale('log')
     fig.colorbar(im, ax=ax, label=label)
