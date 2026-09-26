@@ -1,8 +1,11 @@
 """
-Calcula o mapa de fidelidade no plano (sigma, L) para dois sítios cross-Kerr
-idênticos, fótons contrapropagantes, agora COM um banho térmico de defasagem
-pura acoplado a cada átomo, e salva os dados em data/heatmap para serem
-plotados por heatmap_l_vs_sigma_plotar.py.
+Calcula o mapa da fidelidade média de porta F1 no plano (sigma, L) para dois
+sítios cross-Kerr idênticos, fótons contrapropagantes, agora COM um banho
+térmico de defasagem pura acoplado a cada átomo, e salva os dados em
+data/heatmap para serem plotados por heatmap_l_vs_sigma_plotar_thermal.py.
+O resultado principal é F1(phi = pi), a porta CZ, e F1(phi_opt); |F|, F e f1
+são salvos só para diagnóstico (|F| é o módulo do produto escalar, não a
+fidelidade).
 
 Modelo do banho
 ---------------
@@ -57,7 +60,7 @@ phi = np.pi           # fase usada no cálculo de F1(phi)
 #   (a) fixar gamma_phi diretamente (em unidades de gamma), ou
 #   (b) dar alpha e T e deixar gamma_phi_de_T calcular (use_T = True).
 use_T = False
-gamma_phi = 0      # (a) taxa de defasagem, em unidades de gamma
+gamma_phi = 1      # (a) taxa de defasagem, em unidades de gamma
 alpha = 0.01          # (b) acoplamento ôhmico adimensional (precisa alpha << 1)
 T_red = 1.0           # (b) temperatura reduzida k_B T / (hbar*gamma); precisa T_red >> 1
 
@@ -242,6 +245,9 @@ def main():
 
     f1_grid = np.broadcast_to(f1_vals, F_grid.shape)
     F1_pi, F1_opt = fidelidades(f1_grid, F_grid, phi)
+    if not quiet:
+        i, j = np.unravel_index(np.argmax(F1_pi), F1_pi.shape)
+        print(f"max F1(phi={phi:.3g}) = {F1_pi[i, j]:.6f} em sigma={sigma_vals[j]:.4g}, L={L_vals[i]:.4g}")
 
     os.makedirs(outdir, exist_ok=True)
     outpath = os.path.join(outdir, outfile)

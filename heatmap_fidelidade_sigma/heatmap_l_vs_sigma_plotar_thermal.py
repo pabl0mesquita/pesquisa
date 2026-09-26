@@ -1,6 +1,6 @@
 """
-Plota o heatmap no plano (sigma, L) a partir dos dados gerados por
-heatmap_l_vs_sigma_calcular.py em data/heatmap.
+Plota o heatmap da fidelidade no plano (sigma, L) a partir dos dados gerados por
+heatmap_l_vs_sigma_calcular_thermal.py em data/heatmap.
 
 Versão com banho térmico de defasagem: os dados agora incluem gamma_phi, a
 sobreposição de fóton único f1 e fidelidades que usam só a parte COERENTE do
@@ -18,7 +18,7 @@ import matplotlib.pyplot as plt
 # ----------------------------------------------------------------------
 # O nome do arquivo segue a convenção de heatmap_l_vs_sigma_calcular.py.
 # Ajuste estes valores para os usados no cálculo (ou defina `infile` à mão).
-chi, gamma, omega0, gamma_phi = 1000.0, 1.0, 0.0, 0
+chi, gamma, omega0, gamma_phi = 1000.0, 1.0, 0.0, 1
 infile = os.path.join(
     'data', 'heatmap',
     f'heatmap_chi{chi:g}_gamma{gamma:g}_omega{omega0:g}_gphi{gamma_phi:g}_thermal.npz')
@@ -29,12 +29,13 @@ show = True           # se True, abre a janela interativa além de salvar
 # ----------------------------------------------------------------------
 # O que colorir
 # ----------------------------------------------------------------------
-# 'F_abs'  : |<alvo|parte coerente de dois fótons>|
+# 'F1_pi'  : fidelidade média com phi = pi, a porta CZ (cota inferior)
+# 'F1_opt' : fidelidade média com phi otimizado (cota inferior)
+# Diagnósticos (não são fidelidade):
+# 'F_abs'  : |<alvo|parte coerente de dois fótons>|, o módulo do produto escalar
 # 'F_arg'  : fase de F (em unidades de pi)
 # 'f1_abs' : |f1|, sobreposição de fóton único com o alvo (não depende de L)
-# 'F1_pi'  : fidelidade média com phi = pi (cota inferior)
-# 'F1_opt' : fidelidade média com phi otimizado (cota inferior)
-field = 'F_abs'
+field = 'F1_pi'
 vmin, vmax = None, None  # faixa da barra de cores; se None, usa o padrão de `field`
 cbar_label = None     # rótulo da barra; se None, usa o padrão de `field`
 
@@ -51,9 +52,11 @@ FIELD_LABELS = {
     'F_abs': r'$|\langle \mathrm{alvo}|\psi_{\mathrm{coh}}\rangle|$',
     'F_arg': r'$\arg F/\pi$',
     'f1_abs': r'$|f_1|$ (fóton único)',
-    'F1_pi': r'$F_1(\phi=\pi)$ (cota inferior)',
-    'F1_opt': r'$F_1(\phi_{\mathrm{opt}})$ (cota inferior)',
+    'F1_pi': r'Fidelidade $F_1(\phi=\pi)$ (cota inferior)',
+    'F1_opt': r'Fidelidade $F_1(\phi_{\mathrm{opt}})$ (cota inferior)',
 }
+# Para a fidelidade a faixa é 0-1 (e não 0,4-1 como no caso sem banho), pois a
+# defasagem leva F1 bem abaixo de 0,4; a mesma escala permite comparar gamma_phi.
 FIELD_RANGES = {
     'F_abs': (0.0, 1.0),
     'F_arg': (-1.0, 1.0),

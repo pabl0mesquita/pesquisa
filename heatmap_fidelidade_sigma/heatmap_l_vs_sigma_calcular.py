@@ -1,7 +1,13 @@
 """
-Calcula o mapa de F no plano (sigma, L) para dois sítios cross-Kerr idênticos,
-fótons contrapropagantes, e salva os dados em data/heatmap para serem plotados
-por heatmap_l_vs_sigma_plotar.py.
+Calcula o mapa da fidelidade média de porta F1 no plano (sigma, L) para dois
+sítios cross-Kerr idênticos, fótons contrapropagantes, e salva os dados em
+data/heatmap para serem plotados por heatmap_l_vs_sigma_plotar.py.
+
+A fidelidade é F1(phi) = [6 + 3 Re(e^{i phi} F) + |F|^2] / 10, onde
+F = <xi xi| S1†S1† S |xi xi> é a amplitude de sobreposição (|F| é o módulo do
+produto escalar, que ignora a fase e por isso não é a fidelidade). São salvos
+F1(phi = pi), que é a porta CZ, e F1(phi_opt), com a fase escolhida de modo a
+maximizar F1; F, |F|, Re F e Im F seguem salvos para diagnóstico.
 
 Usa as mesmas expressões e o mesmo método de integração de calcular.py: a
 integral tripla é reduzida a convoluções 1D (o núcleo fatoriza, com K dependendo
@@ -127,6 +133,18 @@ def compute_F(sigma, L):
     return 1.0 + 2 * termo
 
 
+def fidelity_F1(F, phi_target=None):
+    """Fidelidade média de porta F1 (d=4, A=diag(1,1,1,F)).
+
+    Com `phi_target` dá F1(phi) = [6 + 3 Re(e^{i phi} F) + |F|^2]/10; com
+    None dá F1(phi_opt) = [6 + 3|F| + |F|^2]/10, que escolhe phi de modo que
+    e^{i phi} F = |F|. Vale também para arrays."""
+    F_abs = np.abs(F)
+    if phi_target is None:
+        return (6 + 3 * F_abs + F_abs ** 2) / 10.0
+    return (6 + 3 * np.real(np.exp(1j * phi_target) * F) + F_abs ** 2) / 10.0
+
+
 def main():
     sigma_vals = np.logspace(np.log10(sigma_min), np.log10(sigma_max), n_sigma)
     L_vals = np.linspace(L_min, L_max, n_L)
@@ -139,9 +157,14 @@ def main():
             print(f"L={L:6.3f}  concluído ({i+1}/{len(L_vals)})")
 
     F_abs = np.abs(F_grid)
+    F1_pi = fidelity_F1(F_grid, phi)
+    F1_opt = fidelity_F1(F_grid)
     if np.any(F_abs > 1.0 + 1e-6) and not quiet:
         print("AVISO: |F| > 1 em alguns pontos -- considere aumentar "
               "'pts_per_width' ou 'k_sigma'.")
+    if not quiet:
+        i, j = np.unravel_index(np.argmax(F1_pi), F1_pi.shape)
+        print(f"max F1(phi={phi:.3g}) = {F1_pi[i, j]:.6f} em sigma={sigma_vals[j]:.4g}, L={L_vals[i]:.4g}")
 
     os.makedirs(outdir, exist_ok=True)
     outpath = os.path.join(outdir, outfile)
@@ -152,8 +175,8 @@ def main():
         F_abs=F_abs,
         F_re=np.real(F_grid),
         F_im=np.imag(F_grid),
-        F1_pi=(6 + 3 * np.real(np.exp(1j * phi) * F_grid) + F_abs ** 2) / 10.0,
-        F1_opt=(6 + 3 * F_abs + F_abs ** 2) / 10.0,
+        F1_pi=F1_pi,
+        F1_opt=F1_opt,
         chi=chi, gamma=gamma, Delta=Delta, omega0=omega0, phi=phi,
         k_sigma=k_sigma, pts_per_width=pts_per_width,
     )
