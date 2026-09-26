@@ -21,7 +21,7 @@ from scipy.signal import fftconvolve
 # ----------------------------------------------------------------------
 # Parâmetros físicos (todos configuráveis)
 # ----------------------------------------------------------------------
-N = 4                 # número de sítios
+N = 20                 # número de sítios
 chi = 1000            # acoplamento não-linear (igual em todos os sítios)
 gamma = 1             # taxa de decaimento (igual em todos os sítios)
 Delta = 0.0           # dessintonia (igual em todos os sítios)
@@ -35,8 +35,8 @@ omega_c = Delta + omega0  # frequência central efetiva (derivada, não editar)
 # Parâmetros da varredura em sigma
 # ----------------------------------------------------------------------
 sigma_min = 0.01      # menor largura do pacote de onda na varredura
-sigma_max = 100.0     # maior largura do pacote de onda na varredura
-n_sigma = 100        # número de pontos na varredura de sigma (escala log)
+sigma_max = 10.0      # maior largura do pacote de onda na varredura
+n_sigma = 100         # número de pontos na varredura de sigma (escala log)
 
 # ----------------------------------------------------------------------
 # Parâmetros numéricos da integração

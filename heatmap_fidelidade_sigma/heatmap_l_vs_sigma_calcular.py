@@ -39,7 +39,7 @@ sigma_max = 10.0      # maior largura do pacote
 n_sigma = 200         # número de colunas do mapa
 
 L_min = 0.0           # menor separação entre os sítios (eixo y, escala linear)
-L_max = 6.0           # maior separação
+L_max = 1           # maior separação
 n_L = 200             # número de linhas do mapa
 
 # ----------------------------------------------------------------------

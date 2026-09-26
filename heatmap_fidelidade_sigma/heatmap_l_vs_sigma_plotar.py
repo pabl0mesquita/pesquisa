@@ -23,7 +23,7 @@ vmin, vmax = None, None  # faixa da barra de cores; se None, usa o padrão de `f
 cbar_label = None     # rótulo da barra; se None, usa o padrão de `field`
 
 # arquivo de imagem de saída: um por campo, para não sobrescrever os outros mapas
-outfile = f'heatmap_{field}_chi1000_gamma1_omega0_thermal.svg'
+outfile = f'heatmap_{field}_chi1000_gamma1_omega0.svg'
 
 # ----------------------------------------------------------------------
 # Parâmetros visuais

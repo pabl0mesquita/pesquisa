@@ -10,7 +10,7 @@ import matplotlib.pyplot as plt
 from matplotlib.colors import to_rgba
 
 
-N = 4
+N = 20
 FIELD_LABELS = {
     'F1_pi': r'$F_1(\phi=\pi)$',
     'F1_opt': r'$F_1(\phi_{opt})$',
