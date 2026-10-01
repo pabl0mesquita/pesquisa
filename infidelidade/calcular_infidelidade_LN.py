@@ -50,6 +50,7 @@ Delta = 0.0           # dessintonia dos sítios
 omega0 = 0.0          # centro do pacote relativo a Delta: ωc = Delta + omega0
 phi = np.pi           # fase da porta (CPHASE)
 L_coef = 1.0          # L = L_coef / N para cada N (L_coef=1: L = 1/N)
+calc_L0 = True        # calcula também σ_max e F_max com L = 0 (curva de referência da Fig. 3(b))
 N_values = np.arange(1, 21)  # N = 1, ..., 20 (N=1 só aparece na Fig. 3(a))
 
 omega_c = Delta + omega0  # frequência central efetiva (derivada, não editar)
@@ -319,6 +320,15 @@ def run():
         smax.append(s), Fmax.append(F)
         print(f'L={L:.4g} N={N:2d}  σ_max={s:.5f}  F_max={F:.6f}  1-F={1 - F:.3e}')
     F_curves = np.array([[fidelity(s, N, L_of_N(N)) for s in sigma_fig3a] for N in N_fig3a])
+
+    extra = {}
+    if calc_L0:
+        smax0, Fmax0 = [], []
+        for N in N_values:
+            s, F, *_ = optimize_sigma(N, 0.0)
+            smax0.append(s), Fmax0.append(F)
+            print(f'L=0 N={N:2d}  σ_max={s:.5f}  F_max={F:.6f}  1-F={1 - F:.3e}')
+        extra = dict(sigma_max_L0=np.array(smax0), F_max_L0=np.array(Fmax0))
     print(f'[{time.time() - t0:.1f} s]')
 
     os.makedirs(outdir, exist_ok=True)
@@ -328,7 +338,7 @@ def run():
         N=N_values, sigma_max=np.array(smax), F_max=np.array(Fmax),
         N_fig3a=np.array(N_fig3a), sigma_fig3a=sigma_fig3a, F_curves=F_curves,
         L_coef=L_coef, L_N=np.array([L_of_N(N) for N in N_values]),
-        chi=chi, gamma=gamma, Delta=Delta, omega0=omega0, phi=phi,
+        chi=chi, gamma=gamma, Delta=Delta, omega0=omega0, phi=phi, **extra,
     )
     print(f'Dados salvos em {outpath}')
 
