@@ -1,10 +1,14 @@
 """
-Reprodução da Fig. 3 de Brod & Combes, "A passive CPHASE gate via cross-Kerr
-nonlinearities" (arXiv:1604.04278), com a matriz S de N sítios que inclui o
-deslocamento de fase e^{iωL} (a mesma de fidelidade_sigma/calcular_sigma_n_sitios.py).
+Calcula os dados da Fig. 3 de Brod & Combes, "A passive CPHASE gate via
+cross-Kerr nonlinearities" (arXiv:1604.04278), e salva em data/ para serem
+plotados por plot_infidelidade.py. Usa a matriz S de N sítios que inclui o
+deslocamento de fase e^{iωL} (a mesma de fidelidade_sigma/calcular_sigma_n_sitios.py),
+com o deslocamento escalado com o número de sítios: L = L_coef / N (L_coef = 1 → L = 1/N),
+de modo que a fase total acumulada (N-1)ωL fica ~ωL_coef, independente de N.
 
     Fig. 3(a): F_avg(φ=π) vs σ para vários N.
-    Fig. 3(b): 1 - F_max e σ_max vs N (log-log), com ajustes de lei de potência.
+    Fig. 3(b): 1 - F_max e σ_max vs N (os ajustes de lei de potência são
+               feitos em plot_infidelidade.py).
 
 Matriz S (fótons contrapropagantes, ν = entrada, ω = saída, sítios idênticos):
 
@@ -27,13 +31,12 @@ Overlap (Eq. A3), já com S1† S1† aplicado (a parte produto vira identidade)
 
 Fidelidade média (Eq. A2):  F_avg(φ) = [6 + 3 Re(e^{iφ} Ov) + |Ov|²] / 10.
 
-Uso:  python3 fig3_infidelidade.py            (validações + figuras)
+Uso:  python3 calcular_infidelidade_LN.py   (validações + um .npz com L = L_coef/N)
 """
 import os
 import time
 
 import numpy as np
-import matplotlib.pyplot as plt
 from scipy.integrate import simpson
 from scipy.optimize import minimize_scalar
 from scipy.signal import fftconvolve
@@ -46,17 +49,18 @@ gamma = 1.0           # taxa de decaimento (igual em todos os sítios)
 Delta = 0.0           # dessintonia dos sítios
 omega0 = 0.0          # centro do pacote relativo a Delta: ωc = Delta + omega0
 phi = np.pi           # fase da porta (CPHASE)
-L = 0.2               # deslocamento de fase do phase shifter (L=0: artigo)
-N_values = np.arange(1, 51)  # N = 1, ..., 20 (N=1 só aparece na Fig. 3(a))
+L_coef = 1.0          # L = L_coef / N para cada N (L_coef=1: L = 1/N)
+N_values = np.arange(1, 21)  # N = 1, ..., 20 (N=1 só aparece na Fig. 3(a))
+
+omega_c = Delta + omega0  # frequência central efetiva (derivada, não editar)
 
 # ======================================================================
 # Varredura / otimização em σ
 # ======================================================================
 sigma_lo, sigma_hi = 1e-3, 10.0   # faixa da grade logarítmica
 n_sigma = 121                     # pontos da grade grossa (~40 por década)
-fit_range = (4, 20)               # N usados nos ajustes de lei de potência
-N_fig3a = [1, 2, 3, 4, 5, 10, 20, 50]   # curvas da Fig. 3(a), como no artigo
-N_fig3b_min = 2                     # a Fig. 3(b) começa em N = 2
+N_fig3a = [1, 2, 3, 4, 5, 10, 20]   # curvas da Fig. 3(a), como no artigo
+sigma_fig3a = np.logspace(-2, 0, 301)   # grade fina só para desenhar a Fig. 3(a)
 
 # ======================================================================
 # Parâmetros numéricos da quadratura
@@ -70,12 +74,18 @@ n_max = 800001        # teto (proteção de memória)
 # Saída
 # ======================================================================
 here = os.path.dirname(os.path.abspath(__file__))
-out_fig = os.path.join(here, f'fig3_L{L:g}_Nmax50.svg')
-out_npz = os.path.join(here, f'fig3_L{L:g}_chi{chi:g}_gamma{gamma:g}_omega{omega0:g}.npz')
-run_validations = True   # validações (~25 s)
-recompute = False        # False: reaproveita o .npz se já existir (só refaz o plot)
+outdir = os.path.join(here, 'data')   # pasta onde os dados serão salvos
+run_validations = True                # validações (~25 s)
 
-omega_c = Delta + omega0
+
+def L_of_N(N):
+    """Deslocamento de fase usado com N sítios: L = L_coef / N."""
+    return L_coef / N
+
+
+def outfile_name():
+    """Nome do .npz de saída (L = L_coef/N)."""
+    return f'fig3_L{L_coef:g}overN_chi{chi:g}_gamma{gamma:g}_omega{omega0:g}_LN.npz'
 
 
 # ----------------------------------------------------------------------
@@ -217,13 +227,6 @@ def optimize_sigma(N, L, **kw):
     return 10 ** res.x, -res.fun, sig, F
 
 
-def fit_power_law(N, y, rng=fit_range):
-    """Ajuste linear em log-log: y = C N^{-p}. Devolve (C, p)."""
-    m = (N >= rng[0]) & (N <= rng[1])
-    slope, icpt = np.polyfit(np.log(N[m]), np.log(y[m]), 1)
-    return np.exp(icpt), -slope
-
-
 # ----------------------------------------------------------------------
 # Validações
 # ----------------------------------------------------------------------
@@ -268,7 +271,7 @@ def brute_force_G(sigma, N, L, n=161, ks=6.0):
     return integ.sum() * h ** 3
 
 
-def validate():
+def validate(L_check=0.2):
     print('=== Validações ===')
     ok = True
     for s in (1e-3, 0.1, 10.0):
@@ -291,7 +294,7 @@ def validate():
         ok &= check(f'unitaridade ||ψ_out||²=1 (N={N}, L={L_:g}, σ={s:g})', abs(d) < 1e-5,
                     f'defeito={d:.1e}')
 
-    for N, L_ in [(4, 0.0), (20, 0.0), (20, L)]:
+    for N, L_ in [(4, 0.0), (20, 0.0), (20, L_check)]:
         s1, F1, *_ = optimize_sigma(N, L_)
         F2 = fidelity(s1, N, L_, pts=2 * pts_per_width, ks=k_sigma + 3)
         ok &= check(f'convergência (N={N}, L={L_:g}), resolução ×2 e janela +3σ',
@@ -305,145 +308,35 @@ def validate():
 
 
 # ----------------------------------------------------------------------
-# Cálculo (com cache em .npz)
+# Cálculo e gravação do .npz
 # ----------------------------------------------------------------------
-sigma_fig3a = np.logspace(-2, 0, 301)   # grade fina só para desenhar a Fig. 3(a)
-
-
-def compute_results():
+def run():
     t0 = time.time()
     smax, Fmax = [], []
     for N in N_values:
+        L = L_of_N(N)
         s, F, *_ = optimize_sigma(N, L)
         smax.append(s), Fmax.append(F)
-        print(f'L={L:g} N={N:2d}  σ_max={s:.5f}  F_max={F:.6f}  1-F={1 - F:.3e}')
-    F_curves = np.array([[fidelity(s, N, L) for s in sigma_fig3a] for N in N_fig3a])
+        print(f'L={L:.4g} N={N:2d}  σ_max={s:.5f}  F_max={F:.6f}  1-F={1 - F:.3e}')
+    F_curves = np.array([[fidelity(s, N, L_of_N(N)) for s in sigma_fig3a] for N in N_fig3a])
     print(f'[{time.time() - t0:.1f} s]')
-    r = dict(N=N_values, sigma_max=np.array(smax), F_max=np.array(Fmax),
-             N_fig3a=np.array(N_fig3a), sigma_fig3a=sigma_fig3a, F_curves=F_curves,
-             L=L, chi=chi, gamma=gamma, omega0=omega0)
-    np.savez(out_npz, **r)
-    print(f'Dados: {out_npz}')
-    return r
+
+    os.makedirs(outdir, exist_ok=True)
+    outpath = os.path.join(outdir, outfile_name())
+    np.savez(
+        outpath,
+        N=N_values, sigma_max=np.array(smax), F_max=np.array(Fmax),
+        N_fig3a=np.array(N_fig3a), sigma_fig3a=sigma_fig3a, F_curves=F_curves,
+        L_coef=L_coef, L_N=np.array([L_of_N(N) for N in N_values]),
+        chi=chi, gamma=gamma, Delta=Delta, omega0=omega0, phi=phi,
+    )
+    print(f'Dados salvos em {outpath}')
 
 
-def load_or_compute():
-    if not recompute and os.path.exists(out_npz):
-        d = dict(np.load(out_npz))
-        if list(d['N']) == list(N_values) and list(d['N_fig3a']) == list(N_fig3a):
-            print(f'Usando dados salvos em {out_npz} (recompute=False)')
-            return d
-    return compute_results()
-
-
-# ----------------------------------------------------------------------
-# Figura no estilo da Fig. 3 do artigo (Mathematica)
-# ----------------------------------------------------------------------
-# Paleta padrão do Mathematica (ColorData[97]), na mesma ordem do artigo
-MMA = ['#5E81B5', '#E19C24', '#8FB032', '#EB6235', '#8778B3',
-       '#C56E1A', '#5D9EC7', '#FFBF00', '#A5609D', '#929600']
-xlabel_a = r'Largura do pacote de onda ($\sigma$)'
-ylabel_a = r'Fidelidade ($F$)'
-xlabel_b = r'Número de sítios de interação ($N$)'
-figsize = (5.0, 5.6)
-# Altura dos rótulos "N = k" na Fig. 3(a); o x é calculado para o rótulo ficar
-# logo à esquerda da subida da curva (como no artigo). Ajuste à mão se precisar.
-label_y = {1: 0.56, 2: 0.66, 3: 0.715, 4: 0.77, 5: 0.825, 10: 0.885, 20: 0.925}
-label_shift = 1.3      # rótulo centrado em σ_cruzamento / label_shift
-
-plt.rcParams.update({
-    'font.family': 'serif', 'font.serif': ['Latin Modern Roman', 'CMU Serif', 'DejaVu Serif'],
-    'font.sans-serif': ['Nimbus Sans', 'Helvetica', 'Arial', 'DejaVu Sans'],
-    'mathtext.fontset': 'cm', 'font.size': 10, 'svg.fonttype': 'path',
-    'axes.linewidth': 0.6, 'axes.edgecolor': '#555555',
-    'xtick.direction': 'in', 'ytick.direction': 'in',
-    'xtick.top': True, 'ytick.right': True,
-    'xtick.major.size': 4, 'ytick.major.size': 4,
-    'xtick.minor.size': 2, 'ytick.minor.size': 2,
-    'xtick.major.width': 0.5, 'ytick.major.width': 0.5,
-    'xtick.minor.width': 0.4, 'ytick.minor.width': 0.4,
-    'xtick.color': '#555555', 'ytick.color': '#555555',
-    'xtick.labelcolor': 'black', 'ytick.labelcolor': 'black',
-    'xtick.labelsize': 8, 'ytick.labelsize': 8,
-    'legend.frameon': False,
-})
-_tick_font = dict(family='sans-serif', size=8)   # rótulos numéricos sem serifa, como no Mathematica
-
-
-def _fmt_ticks(ax, xt, xl, yt, yl):
-    from matplotlib.ticker import FixedLocator, NullFormatter
-    ax.xaxis.set_major_locator(FixedLocator(xt))
-    ax.yaxis.set_major_locator(FixedLocator(yt))
-    ax.set_xticklabels(xl, **_tick_font)
-    ax.set_yticklabels(yl, **_tick_font)
-    ax.xaxis.set_minor_formatter(NullFormatter())
-    ax.yaxis.set_minor_formatter(NullFormatter())
-
-
-def plot_fig3(r, outfile=out_fig):
-    fig, (ax_a, ax_b) = plt.subplots(2, 1, figsize=figsize,
-                                     gridspec_kw=dict(height_ratios=[1.9, 1], hspace=0.28))
-
-    # ---- (a) F vs σ -------------------------------------------------
-    sig, Fc = r['sigma_fig3a'], r['F_curves']
-    for k, (N, F) in enumerate(zip(r['N_fig3a'], Fc)):
-        c = MMA[k % len(MMA)]
-        ax_a.semilogx(sig, F, '-', color=c, lw=1.1)
-        # rótulo à esquerda da subida da curva, como no artigo
-        i_pk = int(np.argmax(F))
-        y_lab = min(label_y.get(int(N), 0.7), F[i_pk] - 0.03)
-        x_cross = np.exp(np.interp(y_lab, F[:i_pk + 1], np.log(sig[:i_pk + 1])))
-        x_lab = max(x_cross / label_shift, sig[0] * 1.3)
-        ax_a.text(x_lab, y_lab, f'N = {int(N)}', ha='center', va='center',
-                  fontdict=dict(_tick_font, size=7),
-                  bbox=dict(boxstyle='round,pad=0.25,rounding_size=0.6',
-                            fc='#E6E6E6', ec='none'))
-    ax_a.set_xlim(sig[0], sig[-1])
-    ax_a.set_ylim(0.35, 1.0)
-    _fmt_ticks(ax_a, [0.01, 0.05, 0.1, 0.5, 1], ['0.01', '0.05', '0.1', '0.5', '1'],
-               np.arange(0.4, 1.01, 0.1), [f'{v:.1f}' for v in np.arange(0.4, 1.01, 0.1)])
-    ax_a.set_xlabel(xlabel_a, labelpad=2)
-    ax_a.set_ylabel(ylabel_a)
-    ax_a.text(0.975, 0.965, '(a)', transform=ax_a.transAxes, ha='right', va='top',
-              fontdict=dict(_tick_font, size=9))
-
-    # ---- (b) 1-F_max e σ_max vs N -------------------------------------
-    m = r['N'] >= N_fig3b_min
-    N, smax, inf = r['N'][m], r['sigma_max'][m], 1 - r['F_max'][m]
-    B, q = fit_power_law(r['N'], r['sigma_max'])
-    A, p = fit_power_law(r['N'], 1 - r['F_max'])
-    Nf = np.linspace(N.min(), N.max() + 0.6, 100)
-    ax_b.loglog(Nf, B * Nf ** -q, '--', color=MMA[0], lw=1.0, dashes=(4, 2.5))
-    ax_b.loglog(Nf, A * Nf ** -p, '--', color=MMA[1], lw=1.0, dashes=(4, 2.5))
-    ax_b.loglog(N, smax, 'o', color=MMA[0], ms=4.2, mec='none', label=r'$\sigma_{\max}$')
-    ax_b.loglog(N, inf, 'o', mfc='white', mec=MMA[1], mew=0.9, ms=4.2, label=r'$1-F$')
-    ax_b.set_xlim(N.min() * 0.93, N.max() * 1.06)
-    lo = min(smax.min(), inf.min())
-    hi = max(smax.max(), inf.max())
-    yt = [v for v in (0.001, 0.005, 0.010, 0.020, 0.030, 0.050, 0.100, 0.200, 0.500)
-          if lo / 1.3 <= v <= hi * 1.3]
-    ax_b.set_ylim(lo / 1.3, hi * 1.3)
-    _fmt_ticks(ax_b, [2, 5, 10, 20,50], ['2', '5', '10', '20', '50'], yt, [f'{v:.3f}' for v in yt])
-    ax_b.set_xlabel(xlabel_b, labelpad=2)
-    ax_b.legend(loc='lower left', handletextpad=0.1, borderaxespad=0.3,
-                labelspacing=0.3, fontsize=10)
-    ax_b.text(0.975, 0.93, '(b)', transform=ax_b.transAxes, ha='right', va='top',
-              fontdict=dict(_tick_font, size=9))
-
-    print(f'Ajustes em N ∈ {list(fit_range)} (L={L:g}):  1-F = {A:.3f} N^(-{p:.3f}),'
-          f'  σ_max = {B:.3f} N^(-{q:.3f})')
-    print('Artigo (L=0, χ→∞):            1-F = 0.537 N^(-1.61),  σ_max = 0.350 N^(-0.81)')
-    fig.savefig(outfile, bbox_inches='tight')
-    print(f'Figura: {outfile}')
-    return fig
-
-
-# ----------------------------------------------------------------------
 def main():
     if run_validations:
-        validate()
-    plot_fig3(load_or_compute())
-    plt.show()
+        validate(L_of_N(20))
+    run()
 
 
 if __name__ == '__main__':
