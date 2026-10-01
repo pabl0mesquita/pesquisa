@@ -21,7 +21,7 @@ from scipy.signal import fftconvolve
 # ----------------------------------------------------------------------
 # Parâmetros físicos (todos configuráveis)
 # ----------------------------------------------------------------------
-N = 50                 # número de sítios
+N = 2                 # número de sítios
 chi = 1000            # acoplamento não-linear (igual em todos os sítios)
 gamma = 1             # taxa de decaimento (igual em todos os sítios)
 Delta = 0.0           # dessintonia (igual em todos os sítios)
