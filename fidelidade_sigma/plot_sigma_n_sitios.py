@@ -10,7 +10,7 @@ import matplotlib.pyplot as plt
 from matplotlib.colors import to_rgba
 
 
-N = 2
+N = 50
 FIELD_LABELS = {
     'F1_pi': r'$F_1(\phi=\pi)$',
     'F1_opt': r'$F_1(\phi_{opt})$',
@@ -92,7 +92,7 @@ def main(
     xlim=(1e-2, 1e1),
     grid=False,
     title=None,
-    xlabel=r'Largura do pacote de onda $\sigma$',
+    xlabel=r'Largura do pacote de onda $\sigma$ $[\gamma]$',
     ylabel='Fidelidade $F_1$',
     legend_loc='upper right',
 ):
@@ -129,12 +129,12 @@ def arquivo(L, N=N, chi=1000, gamma=1, omega0=0):
 if __name__ == '__main__':
     main(
         curves=[
-            curve(infile=arquivo(0),   color='#8A2BE2', label=r'$\frac{L}{\gamma}=0$'),
-            curve(infile=arquivo(0.4), color='#FF0000', label=r'$\frac{L}{\gamma}=0.4$'),
-            curve(infile=arquivo(0.6), color='#3CB371', label=r'$\frac{L}{\gamma}=0.6$'),
-            curve(infile=arquivo(0.8), color='#FF8C00', label=r'$\frac{L}{\gamma}=0.8$'),
-            curve(infile=arquivo(1.0), color='#1E90FF', label=r'$\frac{L}{\gamma}=1.0$'),
-            curve(infile=arquivo(2.0), color='black',   label=r'$\frac{L}{\gamma}=2.0$'),
+            curve(infile=arquivo(0),   color='#8A2BE2', label=r'$L\gamma=0$'),
+            curve(infile=arquivo(0.4), color='#FF0000', label=r'$L\gamma=0.4$'),
+            curve(infile=arquivo(0.6), color='#3CB371', label=r'$L\gamma=0.6$'),
+            curve(infile=arquivo(0.8), color='#FF8C00', label=r'$L\gamma=0.8$'),
+            curve(infile=arquivo(1.0), color='#1E90FF', label=r'$L\gamma=1.0$'),
+            curve(infile=arquivo(2.0), color='black',   label=r'$L\gamma=2.0$'),
         ],
         outfile=fr'fidelity_sigma_N{N}.svg',
     )
