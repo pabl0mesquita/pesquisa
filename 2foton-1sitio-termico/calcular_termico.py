@@ -32,10 +32,10 @@ from scipy.fft import fft, ifft, next_fast_len
 # ----------------------------------------------------------------------
 # Parametros do sitio (iguais aos da Fig. 5 de Brod & Combes)
 # ----------------------------------------------------------------------
-chi = 5.0            # acoplamento nao linear (cross-Kerr) entre os atomos a e b
-gam = 4.5            # gamma: taxa de emissao de cada atomo no guia
+chi = 1000.0 #5.0            # acoplamento nao linear (cross-Kerr) entre os atomos a e b
+gam = 1  #4.5            # gamma: taxa de emissao de cada atomo no guia
 Delta = 0.0          # dessintonia dos atomos (sem mola)
-omega0 = 1.1         # frequencia central do pacote, relativa a Delta
+omega0 = 0#1.1         # frequencia central do pacote, relativa a Delta
 phi = np.pi          # fase da porta CPHASE ideal
 
 omega_c = Delta + omega0   # frequencia central do pacote (derivada, nao editar)

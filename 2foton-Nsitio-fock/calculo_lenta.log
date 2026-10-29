@@ -1,0 +1,12 @@
+=== Validacoes (mola lenta) ===
+  [OK ] g=0 vs Brod-Combes (N=1, sigma=0.3): F=0.753748, ref=0.753735
+  [OK ] g=0 vs Brod-Combes (N=5, sigma=0.1): F=0.959562, ref=0.959562
+  [OK ] g=0 vs Brod-Combes (N=20, sigma=0.03): F=0.995784, ref=0.995781
+  [OK ] <n|t|n> estatico vs Franck-Condon (g=0.05, n=1, omega=0.05, S=4): max|diferenca| = 2.7e-03 (deve ser O(omega/gamma))
+  [OK ] <n|t|n> estatico vs Franck-Condon (g=0.05, n=1, omega=0.025, S=16): max|diferenca| = 1.3e-03 (deve ser O(omega/gamma))
+  [OK ] N=1 estatico vs exato (g=0.05, n=1, omega=0.05, S=4, sigma=0.3): exato=0.67396, estatico=0.67398
+  [OK ] N=1 estatico vs exato (g=0.05, n=1, omega=0.05, S=4, sigma=1): exato=0.54778, estatico=0.54777
+  [OK ] erro do quase-Monte Carlo (N=5, n=1, sigma=0.1): F=0.51646 +- 1.3e-03
+=== Todas as validacoes passaram ===
+
+caso (g_a, n_a, g_b, n_b) = (0.05, 0, 0.05, 0)

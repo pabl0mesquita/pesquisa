@@ -18,7 +18,7 @@ plt.rcParams.update({
 })
 
 pasta = 'data'
-sufixo = 'chi5_gam4.5_w01.1'   # parametros do sitio usados em calcular_termico.py
+sufixo = 'chi1000_gam1_w00'   # parametros do sitio usados em calcular_termico.py
 
 # (arquivo, cor, rotulo, estilo)
 curvas = [

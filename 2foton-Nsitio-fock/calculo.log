@@ -1,0 +1,36 @@
+=== Validacoes ===
+  [OK ] S=0 vs Brod-Combes (N=1, sigma=0.3): F=0.753748, ref=0.753735
+  [OK ] S=0 vs Brod-Combes (N=3, sigma=0.1): F=0.880247, ref=0.880247
+  [OK ] S=0 vs Brod-Combes (N=10, sigma=0.05): F=0.985884, ref=0.985879
+  [OK ] N=1 vs codigo de um sitio (S=0.1, n=0, sigma=1): F=0.664214, ref=0.664214
+  [OK ] N=1 vs codigo de um sitio (S=0.1, n=1, sigma=2): F=0.746106, ref=0.746106
+  [OK ] N=1 vs codigo de um sitio (S=0.1, n=2, sigma=0.5): F=0.476627, ref=0.476627
+  [OK ] N(m) FFT vs forca bruta (N=3, ma=(1, 1, 1), mb=(1, 1, 1)): FFT=-0.47394-0.02092j, direto=-0.47394-0.02092j
+  [OK ] N(m) FFT vs forca bruta (N=3, ma=(2, 1, 0), mb=(1, 1, 1)): FFT=0.00986-0.09867j, direto=0.00986-0.09867j
+  [OK ] N(m) FFT vs forca bruta (N=3, ma=(1, 0, 1), mb=(2, 1, 0)): FFT=0.02014-0.01927j, direto=0.02014-0.01927j
+  [OK ] probabilidade de um foton (N=2, S=0.1, n=1, |m-n|<=5): sum_m int|psi_m|^2 = 0.9999993
+=== Todas as validacoes passaram ===
+
+caso (w_a, S_a, n_a, w_b, S_b, n_b) = (1.0, 0.0, 0, 1.0, 0.0, 0)
+  N= 1: F1_max=0.76055 em sigma=0.3687   [0.1 s]
+  N= 2: F1_max=0.86279 em sigma=0.1848   [0.1 s]
+  N= 3: F1_max=0.91796 em sigma=0.1359   [0.1 s]
+  N= 4: F1_max=0.94497 em sigma=0.1080   [0.1 s]
+  N= 5: F1_max=0.96053 em sigma=0.0926   [0.1 s]
+  N=10: F1_max=0.98665 em sigma=0.0541   [0.1 s]
+  N=20: F1_max=0.99572 em sigma=0.0293   [0.4 s]
+caso (w_a, S_a, n_a, w_b, S_b, n_b) = (1.0, 0.01, 0, 1.0, 0.01, 0)
+  N= 1: F1_max=0.74768 em sigma=0.3687   [0.1 s]
+  N= 2: F1_max=0.82131 em sigma=0.1848   [0.2 s]
+  N= 3: F1_max=0.84621 em sigma=0.1359   [0.5 s]
+  N= 4: F1_max=0.84358 em sigma=0.1080   [3.5 s]
+  N= 5: F1_max=0.83062 em sigma=0.0926   [9.8 s]
+  N=10: F1_max=0.73178 em sigma=0.0541   [59.3 s]
+  N=20: F1_max=0.55750 em sigma=0.0316   [472.3 s]
+caso (w_a, S_a, n_a, w_b, S_b, n_b) = (1.0, 0.01, 1, 1.0, 0.01, 1)
+  N= 1: F1_max=0.72282 em sigma=0.3687   [0.1 s]
+  N= 2: F1_max=0.74626 em sigma=0.1848   [0.7 s]
+  N= 3: F1_max=0.72508 em sigma=0.1359   [3.7 s]
+  N= 4: F1_max=0.68374 em sigma=0.1080   [13.3 s]
+  N= 5: F1_max=0.63903 em sigma=0.0926   [28.0 s]
+  N=10: F1_max=0.45579 em sigma=0.0501   [226.3 s]
