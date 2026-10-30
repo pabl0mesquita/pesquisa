@@ -43,13 +43,19 @@ from scipy.special import eval_genlaguerre, factorial
 # ======================================================================
 # Parametros fisicos dos sitios (iguais aos da Fig. 3 de Brod & Combes)
 # ======================================================================
-chi = 1000.0         # acoplamento nao linear (cross-Kerr) em cada sitio (np.inf: limite saturado)
-gam = 1.0            # gamma: taxa de emissao de cada atomo no guia (unidade de frequencia)
+chi = 1000         # acoplamento nao linear (cross-Kerr) em cada sitio (np.inf: limite saturado)
+gam = 1            # gamma: taxa de emissao de cada atomo no guia (unidade de frequencia)
 Delta = 0.0          # dessintonia dos atomos
-omega0 = 0.3         # frequencia central do pacote, relativa a Delta
+omega0 = 0           # frequencia central do pacote, relativa a linha de zero fonon (ou a Delta, ver abaixo)
 phi = np.pi          # fase da porta CPHASE ideal
+# True: omega0 e medido a partir da linha de zero fonon Delta - S*w (nivel k = n
+# em Gam, deslocado pelo polaron shift 4g^2/w = S*w), de modo que omega0 = 0 poe
+# o pacote em ressonancia com os atomos vestidos de todos os sitios.
+# False: omega0 e medido a partir de Delta (convencao antiga; dessintoniza o
+# pacote de +S*w quando ha mola).
+ressonante_zpl = True
 
-omega_c = Delta + omega0   # frequencia central do pacote (derivada, nao editar)
+omega_c = Delta + omega0   # frequencia central do pacote (recalculada em cada caso por centro_pacote)
 
 # ======================================================================
 # Osciladores.  Cada caso e (w_a, S_a, n_a, w_b, S_b, n_b), igual em todos os
@@ -63,7 +69,7 @@ casos = [
     # (1.0, 0.0, 0, 1.0, 0.0, 0),     # sem mola: Fig. 3(a) original
     # (0.3, 0.01, 1, 0.3, 0.01, 1),
     # (0.3, 0, 1, 0.3, 0, 1),
-      (0.3, 0.25, 1, 0.3, 0.25, 1)
+      (0.3, 0.25, 0, 0.3, 0.25, 0)
     # (1.0, 0.01, 1, 1.0, 0.01, 1),
     # (1.0, 0.01, 2, 1.0, 0.01, 2),
 ]
@@ -642,19 +648,40 @@ def validar():
 # ======================================================================
 # Varredura e saida
 # ======================================================================
+def centro_pacote(w_a, S_a, w_b, S_b):
+    """omega_c do caso.  Com ressonante_zpl, o pacote e centrado na linha de zero
+    fonon Delta - S*w (+ omega0).  Os dois fotons tem o mesmo omega_c: se os
+    osciladores a e b tem deslocamentos S*w diferentes, usa-se a media."""
+    if not ressonante_zpl:
+        return Delta + omega0
+    if not np.isclose(S_a * w_a, S_b * w_b):
+        print(f'AVISO: S_a w_a = {S_a * w_a:g} != S_b w_b = {S_b * w_b:g}: '
+              'pacote centrado na media das duas linhas de zero fonon')
+    return Delta - (S_a * w_a + S_b * w_b) / 2 + omega0
+
+
+def _fidelidade_em(args):
+    """fidelidade(cad, sigma) com omega_c ajustado no processo que a executa."""
+    global omega_c
+    cad, sigma, omega_c = args
+    return fidelidade(cad, sigma)
+
+
 def nome_arquivo(N, w_a, S_a, n_a, w_b, S_b, n_b):
-    return (f"fid_N{N}_chi{chi:g}_gam{gam:g}_w0{omega0:g}"
+    return (f"fid_N{N}_chi{chi:g}_gam{gam:g}_w0{omega0:g}{'zpl' if ressonante_zpl else ''}"
             f"_wa{w_a:g}_Sa{S_a:g}_na{n_a}_wb{w_b:g}_Sb{S_b:g}_nb{n_b}"
             f"_exc{max_excitados}_{referencia}.npz")
 
 
 def calcular_caso(N, w_a, S_a, n_a, w_b, S_b, n_b):
+    global omega_c
+    omega_c = centro_pacote(w_a, S_a, w_b, S_b)
     cad = montar_cadeia(N, w_a, S_a, n_a, w_b, S_b, n_b)
     sigmas = np.logspace(np.log10(sigma_min), np.log10(sigma_max), n_sigma)
     t0 = time.time()
     if n_proc > 1:
         with ProcessPoolExecutor(n_proc) as ex:
-            F1s = np.array(list(ex.map(fidelidade, [cad] * len(sigmas), sigmas)))
+            F1s = np.array(list(ex.map(_fidelidade_em, [(cad, s, omega_c) for s in sigmas])))
     else:
         F1s = np.array([fidelidade(cad, s) for s in sigmas])
     for s, F1 in zip(sigmas, F1s):
@@ -669,6 +696,7 @@ def calcular_caso(N, w_a, S_a, n_a, w_b, S_b, n_b):
     path = os.path.join(outdir, nome_arquivo(N, w_a, S_a, n_a, w_b, S_b, n_b))
     np.savez(path, sigmas=sigmas, F1=F1s, N=N,
              chi=chi, gam=gam, Delta=Delta, omega0=omega0, phi=phi,
+             ressonante_zpl=ressonante_zpl, omega_c=omega_c,
              w_a=w_a, S_a=S_a, n_a=n_a, w_b=w_b, S_b=S_b, n_b=n_b,
              max_excitados=max_excitados, dq_max=dq_max, referencia=referencia,
              k_sigma=k_sigma, pts_per_width=pts_per_width)

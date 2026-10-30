@@ -1,0 +1,90 @@
+oscilador: omega=0.3, n=0   (gam=1, 11 processos)
+otimizando delta e sigma (chi=1000)
+--- S = 0 ---
+  N=1: triagem F*=0.76043 em delta=+0.0208, sigma=0.3561
+        [0.2 s]
+        refinado F*=0.76091 em delta=+0.0002, sigma=0.3548  (36 avaliacoes)
+        [0.3 s]
+  N=2: triagem F*=0.86194 em delta=+0.0208, sigma=0.1839
+        [0.4 s]
+        refinado F*=0.86281 em delta=+0.0002, sigma=0.1838  (35 avaliacoes)
+        [0.5 s]
+  N=3: triagem F*=0.91707 em delta=+0.0208, sigma=0.1382
+        [0.5 s]
+        refinado F*=0.91804 em delta=+0.0003, sigma=0.1378  (40 avaliacoes)
+        [0.7 s]
+  N=4: triagem F*=0.94424 em delta=+0.0208, sigma=0.1115
+        [0.7 s]
+        refinado F*=0.94523 em delta=+0.0006, sigma=0.1111  (39 avaliacoes)
+        [0.9 s]
+  N=5: triagem F*=0.95957 em delta=+0.0208, sigma=0.0937
+        [0.9 s]
+        refinado F*=0.96056 em delta=+0.0007, sigma=0.0937  (32 avaliacoes)
+        [1.1 s]
+--- S = 0.05 ---
+  N=1: triagem F*=0.74924 em delta=+0.0208, sigma=0.3610
+        [1.8 s]
+        refinado F*=0.74941 em delta=+0.0083, sigma=0.3613  (36 avaliacoes)
+        [2.5 s]
+  N=2: triagem F*=0.81807 em delta=+0.0208, sigma=0.1904
+        [7.7 s]
+        refinado F*=0.81937 em delta=-0.0056, sigma=0.1899  (33 avaliacoes)
+        [9.2 s]
+  N=3: triagem F*=0.82902 em delta=+0.0208, sigma=0.1501
+        [16.8 s]
+        refinado F*=0.83290 em delta=-0.0270, sigma=0.1495  (38 avaliacoes)
+        [19.8 s]
+  N=4: triagem F*=0.80935 em delta=-0.1250, sigma=0.1332
+        [25.5 s]
+        refinado F*=0.81641 em delta=-0.0561, sigma=0.1305  (35 avaliacoes)
+        [31.2 s]
+  N=5: triagem F*=0.79016 em delta=-0.1250, sigma=0.1247
+        [30.3 s]
+        refinado F*=0.79215 em delta=-0.0873, sigma=0.1256  (34 avaliacoes)
+        [37.1 s]
+--- S = 0.1 ---
+  N=1: triagem F*=0.73817 em delta=+0.0208, sigma=0.3668
+        [4.7 s]
+        refinado F*=0.73820 em delta=+0.0166, sigma=0.3667  (36 avaliacoes)
+        [5.7 s]
+  N=2: triagem F*=0.77809 em delta=+0.0208, sigma=0.1963
+        [13.9 s]
+        refinado F*=0.78006 em delta=-0.0131, sigma=0.1960  (35 avaliacoes)
+        [16.1 s]
+  N=3: triagem F*=0.75964 em delta=-0.1250, sigma=0.1648
+        [27.9 s]
+        refinado F*=0.76532 em delta=-0.0622, sigma=0.1629  (37 avaliacoes)
+        [32.3 s]
+  N=4: triagem F*=0.73001 em delta=-0.1250, sigma=0.1546
+        [39.7 s]
+        refinado F*=0.73081 em delta=-0.1223, sigma=0.1567  (35 avaliacoes)
+        [46.2 s]
+  N=5: triagem F*=0.69470 em delta=-0.1250, sigma=0.1608
+        [66.4 s]
+        refinado F*=0.69811 em delta=-0.1725, sigma=0.1587  (37 avaliacoes)
+        [79.3 s]
+--- S = 0.25 ---
+  N=1: triagem F*=0.70579 em delta=+0.0208, sigma=0.3834
+        [6.2 s]
+        refinado F*=0.70630 em delta=+0.0437, sigma=0.3843  (36 avaliacoes)
+        [7.3 s]
+  N=2: triagem F*=0.67772 em delta=+0.0208, sigma=0.2132
+        [16.5 s]
+        refinado F*=0.68306 em delta=-0.0427, sigma=0.2128  (36 avaliacoes)
+        [19.1 s]
+  N=3: triagem F*=0.62904 em delta=-0.1250, sigma=0.1945
+        [27.6 s]
+        refinado F*=0.63448 em delta=-0.1721, sigma=0.1994  (35 avaliacoes)
+        [32.4 s]
+  N=4: triagem F*=0.59180 em delta=-0.2708, sigma=0.1826
+  N=4: triagem F*=0.46119 em delta=+0.7500, sigma=0.2529
+        [42.9 s]
+        refinado F*=0.59527 em delta=-0.2879, sigma=0.1897  (34 avaliacoes)
+        refinado F*=0.46203 em delta=+0.6982, sigma=0.2483  (37 avaliacoes)
+        [58.2 s]
+  N=5: triagem F*=0.56462 em delta=-0.4167, sigma=0.1771
+  N=5: triagem F*=0.44925 em delta=+0.8958, sigma=0.2406
+        [72.6 s]
+        refinado F*=0.56735 em delta=-0.3862, sigma=0.1791  (37 avaliacoes)
+        refinado F*=0.44968 em delta=+0.9229, sigma=0.2466  (36 avaliacoes)
+        [99.1 s]

@@ -25,6 +25,7 @@ here = os.path.dirname(os.path.abspath(__file__))
 # ======================================================================
 N_values = [1, 2, 3, 4, 5]   # curvas (as mesmas da Fig. 3(a))
 pars = dict(chi=1000, gam=1, omega0=0)   # parametros dos sitios usados em calcular_fock_N.py
+ressonante_zpl = True   # mesmo de calcular_fock_N.py: omega0 medido a partir da linha de zero fonon
 max_excitados = 2                    # truncamento usado no calculo
 referencia = 'elastica'
 # casos com osciladores (w_a, S_a, n_a, w_b, S_b, n_b), um grafico por caso
@@ -33,9 +34,18 @@ casos_plot = [
     # (1.0, 0.01, 0, 1.0, 0.01, 0),
     # (1, 0.01, 1, 1, 0.01, 1)
     # (0.3, 0, 1, 0.3, 0, 1)
-    (0.3, 0.25, 1, 0.3, 0.25, 1),
+    (0.3, 0.25, 0, 0.3, 0.25, 0),
     # (1.0, 0.01, 2, 1.0, 0.01, 2),
 ]
+# casos otimizados por otimizar_fock_N.py (modelo (b): delta, sigma -- e S, chi
+# se otimizados -- para cada N), (w, S, n), um grafico por caso.
+# S = 'otim': S tambem otimizado (otimizar_S = True)
+casos_otim = [
+    (0.3, 0.25, 0),
+    (0.3, 'otim', 0),
+]
+otim_chi = 'chi1000'   # 'chiotim' se otimizar_chi = True; senao f'chi{chi_fixo:g}'
+otim_gam = 1
 # casos de mola lenta (g_a, n_a, g_b, n_b), um grafico por caso
 casos_lenta = [
     (0.05, 0, 0.05, 0),
@@ -78,7 +88,7 @@ def arquivo(N, w_a, S_a, n_a, w_b, S_b, n_b, exc=max_excitados):
     """Caminho do .npz gerado por calcular_fock_N.py (mesmo formato de nome_arquivo)."""
     return os.path.join(here, 'data',
                         f"fid_N{N}_chi{pars['chi']:g}_gam{pars['gam']:g}_w0{pars['omega0']:g}"
-                        f"_wa{w_a:g}_Sa{S_a:g}_na{n_a}_wb{w_b:g}_Sb{S_b:g}_nb{n_b}"
+                        f"{'zpl' if ressonante_zpl else ''}_wa{w_a:g}_Sa{S_a:g}_na{n_a}_wb{w_b:g}_Sb{S_b:g}_nb{n_b}"
                         f"_exc{exc}_{referencia}.npz")
 
 
@@ -87,6 +97,18 @@ def arquivo_lenta(N, g_a, n_a, g_b, n_b):
     return os.path.join(here, 'data',
                         f"fidlenta_N{N}_chi{pars['chi']:g}_gam{pars['gam']:g}_w0{pars['omega0']:g}"
                         f"_ga{g_a:g}_na{n_a}_gb{g_b:g}_nb{n_b}_{referencia}.npz")
+
+
+def S_tag(S):
+    """'Sotim' para S otimizado, senao 'S<valor>' (como em otimizar_fock_N.nome_arquivo)."""
+    return 'Sotim' if S == 'otim' else f'S{S:g}'
+
+
+def arquivo_otim(N, w, S, n):
+    """Caminho do .npz gerado por otimizar_fock_N.py (mesmo formato de nome_arquivo)."""
+    return os.path.join(here, 'data',
+                        f"otim_N{N}_{otim_chi}_gam{otim_gam:g}_w{w:g}_{S_tag(S)}_n{n}"
+                        f"_exc{max_excitados}_{referencia}.npz")
 
 
 def posicao_rotulo(sig, F, y_lab):
@@ -117,16 +139,22 @@ def rotulos(ax, curvas):
                 bbox=dict(boxstyle='round,pad=0.25,rounding_size=0.6', fc='#E6E6E6', ec='none'))
 
 
-def plot_caso(caso, outfile, show=False, lenta=False):
+def plot_caso(caso, outfile, show=False, lenta=False, otim=False):
     """Uma figura para o caso `caso`.  lenta=True: caso (g_a, n_a, g_b, n_b) do
-    regime de mola lenta, com a faixa de +-1 erro estatistico."""
+    regime de mola lenta, com a faixa de +-1 erro estatistico.  otim=True: caso
+    (w, S, n) de otimizar_fock_N.py, cada curva com os seus (delta, chi) otimos,
+    listados numa tabela no grafico."""
     fig, ax = plt.subplots(figsize=figsize)
-    curvas = []
+    curvas, tabela = [], []
     for k, N in enumerate(N_values):
         cor = MMA[k % len(MMA)]
-        f = arquivo_lenta(N, *caso) if lenta else arquivo(N, *caso)
+        if otim:
+            f, prog = arquivo_otim(N, *caso), 'otimizar_fock_N.py'
+        elif lenta:
+            f, prog = arquivo_lenta(N, *caso), 'calcular_fock_N_lenta.py'
+        else:
+            f, prog = arquivo(N, *caso), 'calcular_fock_N.py'
         if not os.path.exists(f):
-            prog = 'calcular_fock_N_lenta.py' if lenta else 'calcular_fock_N.py'
             print(f'  faltando {os.path.basename(f)} (rode {prog})')
             continue
         d = np.load(f)
@@ -135,13 +163,26 @@ def plot_caso(caso, outfile, show=False, lenta=False):
             ax.fill_between(d['sigmas'], d['F1'] - d['erro'], d['F1'] + d['erro'],
                             color=cor, alpha=0.25, lw=0)
         curvas.append((N, d['sigmas'], d['F1'], cor))
+        if otim:
+            chi_txt = rf"$\chi={float(d['chi_opt']):.3g}$, " if bool(d['otimizar_chi']) else ''
+            S_txt = (rf"$S={float(d['S_opt']):.3f}$, "
+                     if 'otimizar_S' in d.files and bool(d['otimizar_S']) else '')
+            tabela.append(rf"$N={N}$: $\delta={float(d['delta_opt']):+.3f}$, {S_txt}{chi_txt}"
+                          rf"$\sigma^*={float(d['sigma_opt']):.3f}$, $F^*={float(d['F_opt']):.3f}$")
     if not curvas:
         print(f'  nenhum dado para o caso {caso}: figura nao gerada')
         plt.close(fig)
         return
     rotulos(ax, curvas)
+    if tabela:
+        ax.text(0.025, 0.035, '\n'.join(tabela), transform=ax.transAxes, ha='left', va='bottom',
+                fontsize=7, bbox=dict(boxstyle='round,pad=0.4', fc='white', ec='#CCCCCC', lw=0.5))
 
-    ax.set_xlim(*xlim)
+    sig_pk = [c[1][np.argmax(c[2])] for c in curvas]
+    if otim and (min(sig_pk) < xlim[0] or max(sig_pk) > xlim[1]):   # sigma* fora da faixa padrao
+        ax.set_xlim(min(c[1][0] for c in curvas), max(c[1][-1] for c in curvas))
+    else:
+        ax.set_xlim(*xlim)
     ax.set_ylim(*ylim)
     ax.xaxis.set_major_locator(FixedLocator([0.01, 0.05, 0.1, 0.5, 1]))
     ax.set_xticklabels(['0.01', '0.05', '0.1', '0.5', '1'], **_tick_font)
@@ -151,8 +192,22 @@ def plot_caso(caso, outfile, show=False, lenta=False):
     ax.xaxis.set_minor_formatter(NullFormatter())
     ax.set_xlabel(xlabel, labelpad=2)
     ax.set_ylabel(ylabel)
-    base = rf"\chi={pars['chi']:g},\ \gamma={pars['gam']:g},\ \omega_0={pars['omega0']:g},\ "
-    if lenta:
+    w0 = r'\omega_c-\omega_{\rm ZPL}' if ressonante_zpl and not lenta else r'\omega_0'
+    base = rf"\chi={pars['chi']:g},\ \gamma={pars['gam']:g},\ {w0}={pars['omega0']:g},\ "
+    if otim:
+        w, S, n = caso
+        fixos, livres = rf"\gamma={otim_gam:g},\ \omega^{{(a,b)}}={w:g},\ ", [r'\delta']
+        if S == 'otim':
+            livres.append('S')
+        else:
+            fixos += rf"S={S:g},\ "
+        if otim_chi == 'chiotim':
+            livres.append(r'\chi')
+        else:
+            fixos = rf"\chi={otim_chi[3:]},\ " + fixos
+        livres = r',\ '.join(livres + [r'\sigma'])
+        ax.set_title(rf"${fixos}n={n}$;  ${livres}$ otimizados para cada $N$", fontsize=9)
+    elif lenta:
         g_a, n_a, g_b, n_b = caso
         ax.set_title(rf"${base}\omega^{{(a,b)}}\ll\gamma,\ g={g_a:g},\ n={n_a}$", fontsize=9)
     else:
@@ -173,6 +228,9 @@ def main(show=False):
     for caso in casos_plot:
         w_a, S_a, n_a, w_b, S_b, n_b = caso
         plot_caso(caso, os.path.join(here, f'fig3a_fock_wa{w_a:g}_S{S_a:g}_n{n_a}_N5.svg'), show)
+    # for caso in casos_otim:
+    #     w, S, n = caso
+    #     plot_caso(caso, os.path.join(here, f'fig3a_otim_w{w:g}_{S_tag(S)}_n{n}.svg'), show, otim=True)
     # for caso in casos_lenta:
     #     g_a, n_a, g_b, n_b = caso
     #     plot_caso(caso, os.path.join(here, f'fig3a_lenta_g{g_a:g}_n{n_a}.svg'), show, lenta=True)
