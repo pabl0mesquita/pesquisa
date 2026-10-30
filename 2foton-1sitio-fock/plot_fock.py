@@ -23,9 +23,9 @@ sufixo = 'chi5_gam4.5_w01.1'   # parametros do sitio usados em calcular.py
 # (arquivo, cor, rotulo)
 curvas = [
     (f'fid_{sufixo}_wa1_Sa0_na0_wb1_Sb0_nb0_media.npz',     'red',    'sem mola', '-'),
-    (f'fid_{sufixo}_wa1_Sa0.1_na0_wb1_Sb0.1_nb0_media.npz', 'black',  r'$n_a=n_b=0$','-.'),
-    (f'fid_{sufixo}_wa1_Sa0.1_na1_wb1_Sb0.1_nb1_media.npz', '#8A2BE2', r'$n_a=n_b=1$','-.'),
-    (f'fid_{sufixo}_wa1_Sa0.1_na2_wb1_Sb0.1_nb2_media.npz', '#1E90FF', r'$n_a=n_b=2$','-.'),
+    (f'fid_{sufixo}_wa1_Sa0.25_na0_wb1_Sb0.25_nb0_media.npz', 'black',  r'$n_a=n_b=0$','-.'),
+    (f'fid_{sufixo}_wa1_Sa0.25_na1_wb1_Sb0.25_nb1_media.npz', '#8A2BE2', r'$n_a=n_b=1$','-.'),
+    (f'fid_{sufixo}_wa1_Sa0.25_na2_wb1_Sb0.25_nb2_media.npz', '#1E90FF', r'$n_a=n_b=2$','-.'),
 ]
 
 xlim = (0.03, 100)

@@ -18,14 +18,14 @@ plt.rcParams.update({
 })
 
 pasta = 'data'
-sufixo = 'chi1000_gam1_w00'   # parametros do sitio usados em calcular_termico.py
+sufixo = 'chi5_gam4.5_w01.1'   # parametros do sitio usados em calcular_termico.py
 
 # (arquivo, cor, rotulo, estilo)
 curvas = [
-    (f'termico_{sufixo}_wa0.3_Sa0_nbara0_wb0.3_Sb0_nbarb0_media.npz',     'red',     'sem mola',              '-'),
-    (f'termico_{sufixo}_wa0.3_Sa4_nbara0_wb0.3_Sb4_nbarb0_media.npz',     'black',   r'$\bar n=0$',           '--'),
-    (f'termico_{sufixo}_wa0.3_Sa4_nbara1_wb0.3_Sb4_nbarb1_media.npz',     '#8A2BE2', r'$\bar n=1$',           '--'),
-    (f'termico_{sufixo}_wa0.3_Sa4_nbara2_wb0.3_Sb4_nbarb2_media.npz',   '#1E90FF', r'$\bar n=2$',          '--'),
+    (f'termico_{sufixo}_wa1_Sa0_nbara0_wb1_Sb0_nbarb0_media.npz',     'red',     'sem mola',              '-'),
+    (f'termico_{sufixo}_wa1_Sa1_nbara0_wb1_Sb1_nbarb0_media.npz',     'black',   r'$\bar n=0$',           '--'),
+    (f'termico_{sufixo}_wa1_Sa1_nbara1_wb1_Sb1_nbarb1_media.npz',     '#8A2BE2', r'$\bar n=1$',           '--'),
+    (f'termico_{sufixo}_wa1_Sa1_nbara2_wb1_Sb1_nbarb2_media.npz',   '#1E90FF', r'$\bar n=2$',          '--'),
 ]
 
 xlim = (0.03, 100)

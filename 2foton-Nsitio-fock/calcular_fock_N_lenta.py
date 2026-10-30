@@ -46,10 +46,10 @@ from scipy.stats import qmc
 # ======================================================================
 # Parametros fisicos dos sitios (iguais aos da Fig. 3 de Brod & Combes)
 # ======================================================================
-chi = 1000.0         # acoplamento cross-Kerr em cada sitio (np.inf: limite saturado)
-gam = 1.0            # gamma: taxa de emissao de cada atomo no guia (unidade de frequencia)
+chi = 5.0            # acoplamento cross-Kerr em cada sitio (np.inf: limite saturado)
+gam = 4.5            # gamma: taxa de emissao de cada atomo no guia (unidade de frequencia)
 Delta = 0.0          # dessintonia dos atomos
-omega0 = 0.0         # frequencia central do pacote, relativa a Delta
+omega0 = 1.1         # frequencia central do pacote, relativa a Delta
 phi = np.pi          # fase da porta CPHASE ideal
 
 omega_c = Delta + omega0   # frequencia central do pacote (derivada, nao editar)
@@ -63,13 +63,13 @@ omega_c = Delta + omega0   # frequencia central do pacote (derivada, nao editar)
 # g = 0 desliga as molas (Brod-Combes).
 # ======================================================================
 casos = [
-    (0.05, 0, 0.05, 0),
+    # (0.05, 0, 0.05, 0),
     (0.05, 1, 0.05, 1),
-    (0.05, 2, 0.05, 2),
+    # (0.05, 2, 0.05, 2),
 ]
 
 # N_values = [1, 2, 3, 4, 5, 10, 20]   # numeros de sitios (curvas da Fig. 3(a))
-N_values = [1, 10, 20]
+N_values = [1, 2, 3]
 
 # Fase u(w) do foton ideal xi~ = u xi:
 #   'elastica' : fase da amplitude elastica media da cadeia, prod_k <n|t_k|n>(w)

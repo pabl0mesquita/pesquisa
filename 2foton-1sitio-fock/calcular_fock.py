@@ -27,13 +27,27 @@ from scipy.special import eval_genlaguerre, factorial
 # ----------------------------------------------------------------------
 # Parametros do sitio (iguais aos da Fig. 5 de Brod & Combes)
 # ----------------------------------------------------------------------
-chi = 5.0            # acoplamento nao linear (cross-Kerr) entre os atomos a e b
+chi = 5              # acoplamento nao linear (cross-Kerr) entre os atomos a e b
 gam = 4.5            # gamma: taxa de emissao de cada atomo no guia
 Delta = 0.0          # dessintonia dos atomos
 omega0 = 1.1         # frequencia central do pacote, relativa a Delta
 phi = np.pi          # fase da porta CPHASE ideal
 
 omega_c = Delta + omega0   # frequencia central do pacote (derivada, nao editar)
+
+# ----------------------------------------------------------------------
+# Casos calculados: (w_a, S_a, n_a, w_b, S_b, n_b)
+#   w: frequencia da mola,  S = (2g/w)^2: fator de Huang-Rhys,  n: estado de Fock inicial
+# S = 0 desliga a mola e reproduz a curva "single site" da Fig. 5.
+# ----------------------------------------------------------------------
+casos = [
+    (1, 0.0,    0,     1, 0.0,    0),
+    (1, 0.25,   0,    1, 0.25,   0),
+    (1, 0.25,   1,    1, 0.25,   1),
+    (1, 0.25,   2,    1, 0.25,   2),
+]
+
+
 
 # ----------------------------------------------------------------------
 # Correcao da deformacao de foton unico (o que conta como "foton ideal" na saida)
@@ -326,17 +340,6 @@ def calcular_caso(w_a, S_a, n_a, w_b, S_b, n_b):
     return path
 
 
-# ----------------------------------------------------------------------
-# Casos calculados: (w_a, S_a, n_a, w_b, S_b, n_b)
-#   w: frequencia da mola,  S = (2g/w)^2: fator de Huang-Rhys,  n: estado de Fock inicial
-# S = 0 desliga a mola e reproduz a curva "single site" da Fig. 5.
-# ----------------------------------------------------------------------
-casos = [
-    (1.0, 0.0, 0, 1.0, 0.0, 0),
-    (1.0, 0.1, 0, 1.0, 0.1, 0),
-    (1.0, 0.1, 1, 1.0, 0.1, 1),
-    (1.0, 0.1, 2, 1.0, 0.1, 2),
-]
 
 
 def main():

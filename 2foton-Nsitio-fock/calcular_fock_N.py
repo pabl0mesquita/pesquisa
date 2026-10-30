@@ -46,7 +46,7 @@ from scipy.special import eval_genlaguerre, factorial
 chi = 1000.0         # acoplamento nao linear (cross-Kerr) em cada sitio (np.inf: limite saturado)
 gam = 1.0            # gamma: taxa de emissao de cada atomo no guia (unidade de frequencia)
 Delta = 0.0          # dessintonia dos atomos
-omega0 = 0.0         # frequencia central do pacote, relativa a Delta
+omega0 = 0.3         # frequencia central do pacote, relativa a Delta
 phi = np.pi          # fase da porta CPHASE ideal
 
 omega_c = Delta + omega0   # frequencia central do pacote (derivada, nao editar)
@@ -58,14 +58,18 @@ omega_c = Delta + omega0   # frequencia central do pacote (derivada, nao editar)
 #          (b): dos atomos B^(j).  S = 0 desliga as molas (Brod-Combes).
 # Para sitios diferentes entre si, edite `montar_cadeia`.
 # ======================================================================
+#  (w_a, S_a, n_a, w_b, S_b, n_b)
 casos = [
-    (1.0, 0.0, 0, 1.0, 0.0, 0),     # sem mola: Fig. 3(a) original
-    (1.0, 0.01, 0, 1.0, 0.01, 0),
-    (1.0, 0.01, 1, 1.0, 0.01, 1),
-    (1.0, 0.01, 2, 1.0, 0.01, 2),
+    # (1.0, 0.0, 0, 1.0, 0.0, 0),     # sem mola: Fig. 3(a) original
+    # (0.3, 0.01, 1, 0.3, 0.01, 1),
+    # (0.3, 0, 1, 0.3, 0, 1),
+      (0.3, 0.25, 1, 0.3, 0.25, 1)
+    # (1.0, 0.01, 1, 1.0, 0.01, 1),
+    # (1.0, 0.01, 2, 1.0, 0.01, 2),
 ]
 
-N_values = [1, 2, 3, 4, 5, 10, 20]   # numeros de sitios (curvas da Fig. 3(a))
+# N_values = [1, 2, 3, 4, 5, 10, 20]   # numeros de sitios (curvas da Fig. 3(a))
+N_values = [1, 2, 3, 4, 5]   # numeros de sitios (curvas da Fig. 3(a))
 
 # ======================================================================
 # Fidelidade

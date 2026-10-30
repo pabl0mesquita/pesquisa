@@ -23,15 +23,18 @@ here = os.path.dirname(os.path.abspath(__file__))
 # ======================================================================
 # Parametros do grafico
 # ======================================================================
-N_values = [1, 2, 3, 4, 5, 10, 20]   # curvas (as mesmas da Fig. 3(a))
+N_values = [1, 2, 3, 4, 5]   # curvas (as mesmas da Fig. 3(a))
 pars = dict(chi=1000, gam=1, omega0=0)   # parametros dos sitios usados em calcular_fock_N.py
 max_excitados = 2                    # truncamento usado no calculo
 referencia = 'elastica'
 # casos com osciladores (w_a, S_a, n_a, w_b, S_b, n_b), um grafico por caso
+# (w_a, S_a, n_a, w_b, S_b, n_b)
 casos_plot = [
-    (1.0, 0.01, 0, 1.0, 0.01, 0),
-    (1.0, 0.01, 1, 1.0, 0.01, 1),
-    (1.0, 0.01, 2, 1.0, 0.01, 2),
+    # (1.0, 0.01, 0, 1.0, 0.01, 0),
+    # (1, 0.01, 1, 1, 0.01, 1)
+    # (0.3, 0, 1, 0.3, 0, 1)
+    (0.3, 0.25, 1, 0.3, 0.25, 1),
+    # (1.0, 0.01, 2, 1.0, 0.01, 2),
 ]
 # casos de mola lenta (g_a, n_a, g_b, n_b), um grafico por caso
 casos_lenta = [
@@ -45,7 +48,7 @@ MMA = ['#5E81B5', '#E19C24', '#8FB032', '#EB6235', '#8778B3',
        '#C56E1A', '#5D9EC7', '#FFBF00', '#A5609D', '#929600']
 xlabel = r'Largura do pacote de onda ($\sigma$)'
 ylabel = r'Fidelidade ($F$)'
-figsize = (5.0, 3.9)
+figsize = (7, 4.5)
 xlim = (0.01, 1.0)
 ylim = (0.2, 1.0)
 label_shift = 1.3      # rotulo "N = k" centrado em sigma_cruzamento / label_shift
@@ -169,10 +172,10 @@ def plot_caso(caso, outfile, show=False, lenta=False):
 def main(show=False):
     for caso in casos_plot:
         w_a, S_a, n_a, w_b, S_b, n_b = caso
-        plot_caso(caso, os.path.join(here, f'fig3a_fock_wa{w_a:g}_S{S_a:g}_n{n_a}.svg'), show)
-    for caso in casos_lenta:
-        g_a, n_a, g_b, n_b = caso
-        plot_caso(caso, os.path.join(here, f'fig3a_lenta_g{g_a:g}_n{n_a}.svg'), show, lenta=True)
+        plot_caso(caso, os.path.join(here, f'fig3a_fock_wa{w_a:g}_S{S_a:g}_n{n_a}_N5.svg'), show)
+    # for caso in casos_lenta:
+    #     g_a, n_a, g_b, n_b = caso
+    #     plot_caso(caso, os.path.join(here, f'fig3a_lenta_g{g_a:g}_n{n_a}.svg'), show, lenta=True)
 
 
 if __name__ == '__main__':
