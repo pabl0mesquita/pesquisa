@@ -21,9 +21,9 @@ Custo O(M N n log n) por sigma, em vez de O(M N^2 L^3).
 
 Etapas:
     [1/4] validacoes (forca bruta de ../lento/dois_fotons.py e o caso ideal de BC)
-    [2/4] grade (N, kappa): sigma_max e F_max                 -> plots I1, I4, I6
-    [3/4] familia kappa = kappa0 N^-alpha: sigma_max e F_max  -> plots I2, I3
-    [4/4] c(N) = -dF/dkappa|_0 no sigma otimo                 -> plots I2-I5
+    [2/4] grade (N, kappa): sigma_max e F_max                 -> plot I1  (I4 comentada)
+    [3/4] familia kappa = kappa0 N^-alpha: sigma_max e F_max  -> plot I2  (I3 comentada)
+    [4/4] c(N) = -dF/dkappa|_0 no sigma otimo                 -> pontilhados de I1 e I2
 
 Uso:
     python calcular_infidelidade_N.py --procs 8
@@ -50,7 +50,9 @@ ARQUIVO = 'infidelidade_N.npz'
 # =====================================================================
 gam = 1.0
 NS = np.array(list(range(1, 21)) + [25, 30])          # numeros de sitios
-KAPS = np.concatenate([[0.0], np.logspace(-6, -1, 21)])   # grade de kappa (inclui as decadas)
+# grade densa de kappa: so era necessaria para a tolerancia kappa* (fig. I4, interpolacao)
+# KAPS = np.concatenate([[0.0], np.logspace(-5, -1, 17)])   # grade de kappa (inclui as decadas)
+KAPS = np.array([0.0, 1e-5, 1e-4, 1e-3, 1e-2])              # so os kappa da fig. I1
 KAPPA0 = 1e-2                                         # familia kappa = KAPPA0 * N^-alpha
 ALPHAS = np.array([0.0, 1.0, 1.5, 2.0, 2.6, 3.0])
 M = 256                                               # amostras de Sobol por media (potencia de 2)

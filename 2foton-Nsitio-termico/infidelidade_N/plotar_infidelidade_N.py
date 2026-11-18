@@ -6,14 +6,16 @@ Modelo linear em kappa (validado em I5):  1 - F_max ~ A N^-p + c(N) kappa,  c(N)
 
 I1  1 - F_max x N para kappa fixo            (com kappa fixo existe um N otimo)
 I2  1 - F_max x N com kappa = kappa0 N^-alpha (resposta direta: que alpha e preciso)
-I3  expoente efetivo p_eff x alpha           (previsao: min(p, alpha - 1))
-I4  tolerancia kappa*(N) (e g*/gamma)        (previsao: kappa* ~ A N^-(p+1) / (8/5))
-I5  c(N)/N x N                               (convergencia para 8/5)
-I6  mapa log10(1 - F_max) no plano (N, kappa)
+(comentado) I3  expoente efetivo p_eff x alpha           (previsao: min(p, alpha - 1))
+(comentado) I4  tolerancia kappa*(N) (e g*/gamma)        (previsao: kappa* ~ A N^-(p+1) / (8/5))
+(comentado) I5  c(N)/N x N                               (convergencia para 8/5)
 
 Uso:
     python plotar_infidelidade_N.py              # todas as figuras
-    python plotar_infidelidade_N.py --figs 2 4   # so algumas
+    python plotar_infidelidade_N.py --figs 2     # so uma
+
+Ativas: I1 e I2. O codigo de I3-I5 esta comentado (descomente as funcoes, as constantes
+e a linha FIGS para reativar).
     python plotar_infidelidade_N.py --show
 """
 import os
@@ -60,18 +62,16 @@ LEGENDA_FS = 8
 XLABEL_N = r'Número de sítios de interação ($N$)'
 YLABEL_INF = r'Infidelidade ($1-\bar F_{\max}$)'
 
-FIGSIZE = {1: (5.4, 4.0), 2: (5.4, 4.0), 3: (5.0, 3.8), 4: (5.4, 4.0), 5: (5.0, 3.6), 6: (5.8, 4.4)}
+FIGSIZE = {1: (5.4, 4.0), 2: (5.4, 4.0), 3: (5.0, 3.8), 4: (5.4, 4.0), 5: (5.0, 3.6)}
 ARQUIVO = {1: 'figI1_inf_N_kappa_fixo', 2: 'figI2_inf_N_kappa_alpha', 3: 'figI3_p_eff_alpha',
-           4: 'figI4_kappa_tolerancia', 5: 'figI5_coef_c', 6: 'figI6_mapa_N_kappa'}
+           4: 'figI4_kappa_tolerancia', 5: 'figI5_coef_c'}
 
 KAPS_FIXOS = [1e-5, 1e-4, 1e-3, 1e-2]   # curvas da fig. I1 (precisam estar na grade de kappa)
 FAIXA_AJUSTE = (5, 30)                  # N do ajuste ideal A N^-p
-FAIXA_PEFF = (10, 30)                   # N do ajuste do expoente efetivo (fig. I3)
-RAZAO_TOL = 1.0                         # kappa*: o oscilador acrescenta RAZAO_TOL x a infidelidade ideal
-C_INF = 8 / 5                           # limite de c(N)/N
-NBARS_G = [0, 1]                        # eixos g*/gamma da fig. I4 (kappa = (4g)^2 (2 nbar + 1))
-CMAP = 'viridis'
-NIVEIS_MAPA = [-3, -2.5, -2, -1.5, -1]  # contornos de log10(1-F) na fig. I6
+# FAIXA_PEFF = (10, 30)                   # N do ajuste do expoente efetivo (fig. I3)
+# RAZAO_TOL = 1.0                         # kappa*: o oscilador acrescenta RAZAO_TOL x a infidelidade ideal
+# C_INF = 8 / 5                           # limite de c(N)/N
+# NBARS_G = [0, 1]                        # eixos g*/gamma da fig. I4 (kappa = (4g)^2 (2 nbar + 1))
 
 
 # =====================================================================
@@ -113,22 +113,22 @@ def _rot_k(k):
     return fr'$\kappa=10^{{{e}}}$' if np.isclose(k, 10.0 ** e) else fr'$\kappa={k:g}$'
 
 
-def kappa_estrela(d):
-    """kappa*(N): onde (1-F_max) - (1-F0) = RAZAO_TOL (1-F0), interpolando em log-log na grade."""
-    K = d['KAPS']; m = K > 0
-    out = []
-    for i in range(len(d['NS'])):
-        I0 = 1 - d['F0'][i]
-        dI = (1 - d['F_grade'][i, m]) - I0
-        alvo = RAZAO_TOL * I0
-        ok = dI > 0
-        x, y = np.log(K[m][ok]), np.log(dI[ok])
-        j = np.searchsorted(y, np.log(alvo))
-        if j == 0 or j >= len(y):
-            out.append(np.nan)
-        else:
-            out.append(np.exp(np.interp(np.log(alvo), y[j - 1:j + 1], x[j - 1:j + 1])))
-    return np.array(out)
+# def kappa_estrela(d):
+#     """kappa*(N): onde (1-F_max) - (1-F0) = RAZAO_TOL (1-F0), interpolando em log-log na grade."""
+#     K = d['KAPS']; m = K > 0
+#     out = []
+#     for i in range(len(d['NS'])):
+#         I0 = 1 - d['F0'][i]
+#         dI = (1 - d['F_grade'][i, m]) - I0
+#         alvo = RAZAO_TOL * I0
+#         ok = dI > 0
+#         x, y = np.log(K[m][ok]), np.log(dI[ok])
+#         j = np.searchsorted(y, np.log(alvo))
+#         if j == 0 or j >= len(y):
+#             out.append(np.nan)
+#         else:
+#             out.append(np.exp(np.interp(np.log(alvo), y[j - 1:j + 1], x[j - 1:j + 1])))
+#     return np.array(out)
 
 
 # =====================================================================
@@ -169,91 +169,65 @@ def fig2(plt, d):
     return fig
 
 
-def fig3(plt, d):
-    NS, al, k0 = d['NS'], d['ALPHAS'], float(d['KAPPA0'])
-    A, p = ajuste(NS, 1 - d['F0'], FAIXA_AJUSTE)
-    pe = [ajuste(NS, 1 - F, FAIXA_PEFF)[1] for F in d['F_alpha']]
-    af = np.linspace(al.min(), al.max(), 200)
-    pm = [ajuste(NS, 1 - d['F0'] + d['c'] * k0 * NS ** -a, FAIXA_PEFF)[1] for a in af]
-    fig, ax = plt.subplots(figsize=FIGSIZE[3])
-    ax.plot(af, np.minimum(p, af - 1), ':', color='gray', lw=1.0, label=r'$\min(p,\ \alpha-1)$')
-    ax.plot(af, pm, '-', color=CORES[0], lw=1.0, label=r'modelo $A N^{-p}+c(N)\kappa$')
-    ax.plot(al, pe, 'o', color=CORES[1], ms=5, label='numérico')
-    ax.axhline(p, color=COR_IDEAL, ls='--', lw=0.7)
-    ax.axhline(0, color='#BBBBBB', lw=0.6)
-    ax.set_xlabel(r'$\alpha$  ($\kappa=\kappa_0 N^{-\alpha}$)')
-    ax.set_ylabel(r'expoente efetivo $p_{\rm ef}$  ($1-\bar F\propto N^{-p_{\rm ef}}$)')
-    ax.legend(fontsize=LEGENDA_FS, loc='lower right')
-    _titulo(ax, fr'ajuste em $N\in[{FAIXA_PEFF[0]},{FAIXA_PEFF[1]}]$; tracejado: ideal $p={p:.2f}$')
-    return fig
+# def fig3(plt, d):
+#     NS, al, k0 = d['NS'], d['ALPHAS'], float(d['KAPPA0'])
+#     A, p = ajuste(NS, 1 - d['F0'], FAIXA_AJUSTE)
+#     pe = [ajuste(NS, 1 - F, FAIXA_PEFF)[1] for F in d['F_alpha']]
+#     af = np.linspace(al.min(), al.max(), 200)
+#     pm = [ajuste(NS, 1 - d['F0'] + d['c'] * k0 * NS ** -a, FAIXA_PEFF)[1] for a in af]
+#     fig, ax = plt.subplots(figsize=FIGSIZE[3])
+#     ax.plot(af, np.minimum(p, af - 1), ':', color='gray', lw=1.0, label=r'$\min(p,\ \alpha-1)$')
+#     ax.plot(af, pm, '-', color=CORES[0], lw=1.0, label=r'modelo $A N^{-p}+c(N)\kappa$')
+#     ax.plot(al, pe, 'o', color=CORES[1], ms=5, label='numérico')
+#     ax.axhline(p, color=COR_IDEAL, ls='--', lw=0.7)
+#     ax.axhline(0, color='#BBBBBB', lw=0.6)
+#     ax.set_xlabel(r'$\alpha$  ($\kappa=\kappa_0 N^{-\alpha}$)')
+#     ax.set_ylabel(r'expoente efetivo $p_{\rm ef}$  ($1-\bar F\propto N^{-p_{\rm ef}}$)')
+#     ax.legend(fontsize=LEGENDA_FS, loc='lower right')
+#     _titulo(ax, fr'ajuste em $N\in[{FAIXA_PEFF[0]},{FAIXA_PEFF[1]}]$; tracejado: ideal $p={p:.2f}$')
+#     return fig
 
 
-def fig4(plt, d):
-    NS = d['NS']
-    A, p = ajuste(NS, 1 - d['F0'], FAIXA_AJUSTE)
-    ks = kappa_estrela(d)
-    klin = RAZAO_TOL * (1 - d['F0']) / d['c']
-    kas = RAZAO_TOL * A * NS ** -p / (C_INF * NS)
-    m = np.isfinite(ks)
-    B, q = ajuste(NS[m], ks[m], FAIXA_AJUSTE)
-    fig, ax = plt.subplots(figsize=FIGSIZE[4])
-    ax.loglog(NS[m], ks[m], 'o', color=CORES[1], ms=MS + 0.5, label=r'numérico')
-    ax.loglog(NS, klin, '-', color=CORES[0], lw=1.0, label=r'linear: $(1-\bar F_0)/c(N)$')
-    ax.loglog(NS, kas, '--', color='gray', lw=0.9,
-              label=fr'$A N^{{-p}}/(\frac{{8}}{{5}}N)\propto N^{{-{p + 1:.2f}}}$')
-    ax.set_xlabel(XLABEL_N); ax.set_ylabel(r'tolerância $\kappa^*$')
-    for j, nb in enumerate(NBARS_G):
-        fator = 2 * nb + 1
-        sec = ax.secondary_yaxis(1.0 + 0.16 * j, functions=(lambda k, f=fator: np.sqrt(np.clip(k, 1e-30, None) / f) / 4,
-                                                           lambda g, f=fator: f * (4 * g) ** 2))
-        sec.set_ylabel(fr'$g^*/\gamma$ ($\bar n={nb}$)', fontsize=8)
-        sec.tick_params(labelsize=7)
-    ax.legend(fontsize=LEGENDA_FS, loc='lower left')
-    _titulo(ax, fr'$\kappa^*$: oscilador $=$ {RAZAO_TOL:g}$\times$ a infidelidade ideal; '
-                fr'ajuste $\kappa^*\approx{B:.2f}\,N^{{-{q:.2f}}}$')
-    return fig
+# def fig4(plt, d):
+#     NS = d['NS']
+#     A, p = ajuste(NS, 1 - d['F0'], FAIXA_AJUSTE)
+#     ks = kappa_estrela(d)
+#     klin = RAZAO_TOL * (1 - d['F0']) / d['c']
+#     kas = RAZAO_TOL * A * NS ** -p / (C_INF * NS)
+#     m = np.isfinite(ks)
+#     B, q = ajuste(NS[m], ks[m], FAIXA_AJUSTE)
+#     fig, ax = plt.subplots(figsize=FIGSIZE[4])
+#     ax.loglog(NS[m], ks[m], 'o', color=CORES[1], ms=MS + 0.5, label=r'numérico')
+#     ax.loglog(NS, klin, '-', color=CORES[0], lw=1.0, label=r'linear: $(1-\bar F_0)/c(N)$')
+#     ax.loglog(NS, kas, '--', color='gray', lw=0.9,
+#               label=fr'$A N^{{-p}}/(\frac{{8}}{{5}}N)\propto N^{{-{p + 1:.2f}}}$')
+#     ax.set_xlabel(XLABEL_N); ax.set_ylabel(r'tolerância $\kappa^*$')
+#     for j, nb in enumerate(NBARS_G):
+#         fator = 2 * nb + 1
+#         sec = ax.secondary_yaxis(1.0 + 0.16 * j, functions=(lambda k, f=fator: np.sqrt(np.clip(k, 1e-30, None) / f) / 4,
+#                                                            lambda g, f=fator: f * (4 * g) ** 2))
+#         sec.set_ylabel(fr'$g^*/\gamma$ ($\bar n={nb}$)', fontsize=8)
+#         sec.tick_params(labelsize=7)
+#     ax.legend(fontsize=LEGENDA_FS, loc='lower left')
+#     _titulo(ax, fr'$\kappa^*$: oscilador $=$ {RAZAO_TOL:g}$\times$ a infidelidade ideal; '
+#                 fr'ajuste $\kappa^*\approx{B:.2f}\,N^{{-{q:.2f}}}$')
+#     return fig
 
 
-def fig5(plt, d):
-    NS = d['NS']
-    fig, ax = plt.subplots(figsize=FIGSIZE[5])
-    ax.semilogx(NS, d['c'] / NS, 'o-', color=CORES[0], ms=MS, lw=1.0)
-    ax.axhline(C_INF, color='gray', ls='--', lw=0.9)
-    ax.text(NS[0], C_INF + 0.04, r'$8/5$: porta ideal $+$ fases aleatórias', fontsize=8, color='#555555')
-    ax.set_xlabel(XLABEL_N)
-    ax.set_ylabel(r'$c(N)/N=-\frac{1}{N}\,\partial\bar F_{\max}/\partial\kappa|_0$')
-    _titulo(ax, r'coeficiente no $\sigma$ ótimo de $\kappa=0$')
-    return fig
+# def fig5(plt, d):
+#     NS = d['NS']
+#     fig, ax = plt.subplots(figsize=FIGSIZE[5])
+#     ax.semilogx(NS, d['c'] / NS, 'o-', color=CORES[0], ms=MS, lw=1.0)
+#     ax.axhline(C_INF, color='gray', ls='--', lw=0.9)
+#     ax.text(NS[0], C_INF + 0.04, r'$8/5$: porta ideal $+$ fases aleatórias', fontsize=8, color='#555555')
+#     ax.set_xlabel(XLABEL_N)
+#     ax.set_ylabel(r'$c(N)/N=-\frac{1}{N}\,\partial\bar F_{\max}/\partial\kappa|_0$')
+#     _titulo(ax, r'coeficiente no $\sigma$ ótimo de $\kappa=0$')
+#     return fig
 
 
-def fig6(plt, d):
-    from matplotlib.colors import LogNorm  # noqa: F401
-    NS, K = d['NS'], d['KAPS']
-    m = K > 0
-    Z = np.log10(1 - d['F_grade'][:, m]).T          # (kappa, N)
-    fig, ax = plt.subplots(figsize=FIGSIZE[6])
-    pc = ax.pcolormesh(NS, K[m], Z, shading='gouraud', cmap=CMAP)
-    cs = ax.contour(NS, K[m], Z, levels=NIVEIS_MAPA, colors='w', linewidths=0.7)
-    ax.clabel(cs, fmt=lambda v: f'{v:g}', fontsize=7)
-    ks = kappa_estrela(d)
-    ax.plot(NS, ks, 'o-', color='#FF5555', ms=2.5, lw=1.0, label=r'$\kappa^*(N)$')
-    k0 = float(d['KAPPA0'])
-    for a in d['ALPHAS']:
-        y = k0 * NS.astype(float) ** -a
-        ok = y >= K[m].min()
-        ax.plot(NS[ok], y[ok], '--', color='w', lw=0.6)
-        if ok.any():
-            i = np.where(ok)[0][-1]
-            ax.text(NS[i], y[i], fr'$\alpha={a:g}$', color='w', fontsize=7, ha='right', va='bottom')
-    ax.set_xscale('log'); ax.set_yscale('log')
-    ax.set_xlabel(XLABEL_N); ax.set_ylabel(r'$\kappa$')
-    plt.colorbar(pc, label=r'$\log_{10}(1-\bar F_{\max})$')
-    ax.legend(fontsize=LEGENDA_FS, loc='lower left', labelcolor='w')
-    _titulo(ax, fr'tracejado: $\kappa_0 N^{{-\alpha}}$, $\kappa_0={k0:g}$')
-    return fig
-
-
-FIGS = {1: fig1, 2: fig2, 3: fig3, 4: fig4, 5: fig5, 6: fig6}
+FIGS = {1: fig1, 2: fig2}
+# FIGS = {1: fig1, 2: fig2, 3: fig3, 4: fig4, 5: fig5}
 
 
 if __name__ == '__main__':
